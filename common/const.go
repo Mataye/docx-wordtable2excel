@@ -80,10 +80,6 @@ func NewExcel2WordFileMap() map[string]*FieldItem {
 			KeyField:     "单位回复",
 			ReplaceField: `RESPONSE`,
 		},
-		"原始文件名": {
-			Ignore:   true,
-			KeyField: "原始文件名",
-		},
 	}
 
 	for _, v := range tmp {

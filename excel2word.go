@@ -53,17 +53,12 @@ func main() {
 
 	for _, row := range excelRowDatas {
 		tmpDocx := demoF.Editable()
-		docxFileName := "回复工单--"
+		docxFileName := getDocxFileName(row)
 		sheet := common.TmpDocxDirName
 		for _, column := range row {
-			if column.Ignore {
-				docxFileName = fmt.Sprintf("%s_%s", docxFileName, column.ColumnVal)
-				continue
-			}
 			if column.Sheet != "" {
 				sheet = column.Sheet
 			}
-
 			_ = tmpDocx.Replace(column.ReplaceField, column.ColumnVal, -1)
 		}
 
@@ -73,6 +68,7 @@ func main() {
 			fmt.Printf("生成 word 文件：%s 失败，错误：%v\n", fmt.Sprintf("./%s/%s", sheet, docxFileName), err)
 		}
 	}
+	fmt.Println("成功！！！！")
 
 }
 
@@ -112,7 +108,7 @@ func pickExcelColumn(fileName string) ([][]*common.FieldItem, error) {
 				if fItem.ColumnIndex >= 0 {
 					columnVal = row[fItem.ColumnIndex]
 				}
-				tmpRowItem.ColumnVal = columnVal
+				tmpRowItem.ColumnVal = strings.TrimSpace(columnVal)
 
 				tmpRowDatas = append(tmpRowDatas, tmpRowItem)
 			}
@@ -139,4 +135,17 @@ func CreateDateDir(folderPath string) string {
 		_ = os.Mkdir(folderPath, 0777)
 	}
 	return folderPath
+}
+
+func getDocxFileName(rows []*common.FieldItem) string {
+	fileName := ""
+	for _, f := range rows {
+		if f.KeyField == "区级工单编号" && f.ColumnVal != "" {
+			return fmt.Sprintf("%s工单回复（城乡办）.docx", f.ColumnVal)
+		}
+		if f.KeyField == "市级工单编号" && f.ColumnVal != "" {
+			fileName = fmt.Sprintf("%s工单回复（城乡办）.docx", f.ColumnVal)
+		}
+	}
+	return fileName
 }
