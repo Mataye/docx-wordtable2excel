@@ -42,6 +42,8 @@ var FocusField2ExcelArr = []string{
 }
 
 const DemoWordFileName = "demo.docx"
+const TmpDocxDirName = "other"
+const DocxDirNamePrefix = "docxDir"
 
 type FieldItem struct {
 	Ignore       bool   // 是否忽略
@@ -49,6 +51,7 @@ type FieldItem struct {
 	ReplaceField string // docx 文档中替换标识
 	ColumnIndex  int    // excel 中列标识
 	ColumnVal    string // 列值
+	Sheet        string // 页
 }
 
 func NewExcel2WordFileMap() map[string]*FieldItem {
@@ -74,8 +77,8 @@ func NewExcel2WordFileMap() map[string]*FieldItem {
 			ReplaceField: `{ORDER_DESC}`,
 		},
 		"回复内容": {
-			KeyField:     "回复内容",
-			ReplaceField: `{GOVERNING_BODY_RESPONSE_MSG}`,
+			KeyField:     "单位回复",
+			ReplaceField: `{RESPONSE}`,
 		},
 		"原始文件名": {
 			Ignore:   true,

@@ -8,3 +8,4 @@ tags
 vendor/
 *.docx
 *.xlsx
+docxDir_*

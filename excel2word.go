@@ -4,6 +4,7 @@ import (
 	"docx-wordtable2excel/common"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/nguyenthenguyen/docx"
@@ -45,7 +46,7 @@ func main() {
 
 	demoF, err := docx.ReadDocxFile(demoWordFileName)
 	if nil != err {
-		fmt.Printf("生成 word 文件失败，错误：%v\n", err)
+		fmt.Printf("打开 demo word 文件失败，错误：%v\n", err)
 		return
 	}
 	defer demoF.Close()
@@ -53,15 +54,24 @@ func main() {
 	for _, row := range excelRowDatas {
 		tmpDocx := demoF.Editable()
 		docxFileName := "回复工单--"
+		sheet := common.TmpDocxDirName
 		for _, column := range row {
 			if column.Ignore {
 				docxFileName = fmt.Sprintf("%s_%s", docxFileName, column.ColumnVal)
 				continue
 			}
+			if column.Sheet != "" {
+				sheet = column.Sheet
+			}
 
 			_ = tmpDocx.Replace(column.ReplaceField, column.ColumnVal, -1)
 		}
-		err = tmpDocx.WriteToFile(docxFileName)
+
+		CreateDateDir(fmt.Sprintf("./%s_%s", common.DocxDirNamePrefix, sheet))
+		err = tmpDocx.WriteToFile(fmt.Sprintf("./%s_%s/%s", common.DocxDirNamePrefix, sheet, docxFileName))
+		if nil != err {
+			fmt.Printf("生成 word 文件：%s 失败，错误：%v\n", fmt.Sprintf("./%s/%s", sheet, docxFileName), err)
+		}
 	}
 
 }
@@ -95,11 +105,8 @@ func pickExcelColumn(fileName string) ([][]*common.FieldItem, error) {
 					KeyField:     fItem.KeyField,
 					ReplaceField: fItem.ReplaceField,
 					ColumnIndex:  fItem.ColumnIndex,
+					Sheet:        sheet,
 				}
-				if fItem.Ignore {
-					tmpRowItem.ColumnVal = fmt.Sprintf("%s_%s", sheet, tmpRowItem.ColumnVal)
-				}
-
 				// 兼容老文件
 				columnVal := ""
 				if fItem.ColumnIndex >= 0 {
@@ -125,4 +132,11 @@ func matchFocusColumnIndex(row []string) (map[string]*common.FieldItem, bool) {
 		}
 	}
 	return excel2WordFileMap, has
+}
+
+func CreateDateDir(folderPath string) string {
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		_ = os.Mkdir(folderPath, 0777)
+	}
+	return folderPath
 }
