@@ -45,7 +45,7 @@ func main() {
 
 	demoF, err := docx.ReadDocxFile(demoWordFileName)
 	if nil != err {
-		fmt.Printf("生成 word 文件数百，错误：%v\n", err)
+		fmt.Printf("生成 word 文件失败，错误：%v\n", err)
 		return
 	}
 	defer demoF.Close()
