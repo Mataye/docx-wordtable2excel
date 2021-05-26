@@ -1,4 +1,4 @@
-package main
+package docx2
 
 import (
 	"archive/zip"

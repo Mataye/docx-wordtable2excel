@@ -1,0 +1,10 @@
+*.exe
+.DS_Store
+.AppleDouble
+.LSOverride
+
+.idea
+tags
+vendor/
+*.docx
+*.xlsx

@@ -1,40 +1,20 @@
 package main
 
 import (
+	"docx-wordtable2excel/common"
+	"docx-wordtable2excel/docx2"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
 	"io/ioutil"
 	"strings"
 	"time"
 
+	"github.com/360EntSecGroup-Skylar/excelize"
 )
-
-type Object map[string]interface{}
-
-func (o Object) Set(key string,val interface{})  {
-	if o == nil {
-		o = Object{}
-	}
-	o[key]= val
-}
-
-// 横列展示的表格
-var FocusField2ExcelMap  = map[string]string{
-	// TODO
-	// 这里填需要映射的字段
-}
-
-var FocusField2ExcelArr = []string{
-	//	TODO
-	//  填写	FocusField2ExcelMap 中的 key
-	//	因为 map 的无序性
-}
 
 func main() {
 	files, _ := ioutil.ReadDir("./")
-	fileDataArr := make([]Object, 0)
+	fileDataArr := make([]common.Object, 0)
 	for _, f := range files {
-		//fmt.Println(f.Name())
 		if f.IsDir() {
 			continue
 		}
@@ -67,22 +47,22 @@ func main() {
 	excelName := fmt.Sprintf("%s_接诉即办工单.xlsx", dateStr)
 
 	err := Save2Excel(excelName, fileDataArr)
-	if err != nil {
+	if nil != err {
 		fmt.Printf("生成 excel 文件失败 \n")
 	}
 	fmt.Printf("生成 excel 文件 %s 成功 \n", excelName)
 }
 
 func openDocxFile(filename string) ([][]string, error) {
-	reader, readerFiles :=  UnpackDocx(filename)
+	reader, readerFiles := docx2.UnpackDocx(filename)
 	if reader == nil || len(readerFiles) == 0 {
-		return nil,fmt.Errorf("empty docx reader")
+		return nil, fmt.Errorf("empty docx reader")
 	}
 	defer reader.Close()
-	docFile := RetrieveWordDoc(readerFiles)
-	doc := OpenWordDoc(*docFile)
-	content := WordDocToString(doc)
-	exectContent :=Extract(content)
+	docFile := docx2.RetrieveWordDoc(readerFiles)
+	doc := docx2.OpenWordDoc(*docFile)
+	content := docx2.WordDocToString(doc)
+	exectContent := docx2.Extract(content)
 	t := exectContent.Body.Table.TableRow
 
 	var table [][]string
@@ -94,14 +74,14 @@ func openDocxFile(filename string) ([][]string, error) {
 		table = append(table, row)
 	}
 
-	return table,nil
+	return table, nil
 }
 
-func pickColumnTableFiled(table [][]string) Object {
-	dataMap := Object{}
+func pickColumnTableFiled(table [][]string) common.Object {
+	dataMap := common.Object{}
 	for _, row := range table {
 		for index, field := range row {
-			if newField, ok := FocusField2ExcelMap[field]; ok {
+			if newField, ok := common.FocusField2ExcelMap[field]; ok {
 				if index+1 <= len(row) {
 					dataMap.Set(newField, row[index+1])
 				}
@@ -111,38 +91,38 @@ func pickColumnTableFiled(table [][]string) Object {
 	return dataMap
 }
 
-func Save2Excel(excelName string,fileDataArr []Object) error {
-	f :=  excelize.NewFile()
-	index := f.NewSheet("Sheet1")
+func Save2Excel(excelName string, fileDataArr []common.Object) error {
+	f := excelize.NewFile()
+
+	index := f.NewSheet(common.SheetName)
 
 	startColumnWord := "A"
 	startRowIndex := 1
-	for offset,field := range FocusField2ExcelArr {
+
+	for offset, field := range common.FocusField2ExcelArr {
 		tmpColumnWord := transWord(startColumnWord, int32(offset))
 		column := fmt.Sprintf("%s%d", tmpColumnWord, startRowIndex)
-
-		f.SetCellValue("Sheet1", column, field)
+		f.SetCellValue(common.SheetName, column, field)
 	}
 
 	startRowIndex++
-	for _,obj :=range fileDataArr {
-		for offset, field := range FocusField2ExcelArr {
+	for _, obj := range fileDataArr {
+		for offset, field := range common.FocusField2ExcelArr {
 			tmpColumnWord := transWord(startColumnWord, int32(offset))
 			column := fmt.Sprintf("%s%d", tmpColumnWord, startRowIndex)
-			f.SetCellValue("Sheet1", column, obj[field])
+			f.SetCellValue(common.SheetName, column, obj[field])
 		}
 		startRowIndex++
 	}
 	f.SetActiveSheet(index)
 
-	if err := f.SaveAs(excelName); err != nil {
+	if err := f.SaveAs(excelName); nil != err {
 		return err
 	}
 	return nil
 }
 
-
-func transWord(w string,offset int32) string {
+func transWord(w string, offset int32) string {
 	b := []rune(w)
 	for i, r := range w {
 		if r >= 'A' && r <= 'Z' {
