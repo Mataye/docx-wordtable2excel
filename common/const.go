@@ -58,27 +58,27 @@ func NewExcel2WordFileMap() map[string]*FieldItem {
 	tmp := map[string]*FieldItem{
 		"市级工单编号": {
 			KeyField:     "市级工单编号",
-			ReplaceField: `{CITY_LEVEL_ORDER_NUMBER}`,
+			ReplaceField: `CITY_LEVEL_ORDER_NUMBER`,
 		},
 		"区级工单编号": {
 			KeyField:     "区级工单编号",
-			ReplaceField: `{DISTRICT_LEVEL_ORDER_NUMBER}`,
+			ReplaceField: `DISTRICT_LEVEL_ORDER_NUMBER`,
 		},
 		"回复单位": {
 			KeyField:     "回复单位",
-			ReplaceField: `{REPLY_GOVERNING_BODY}`,
+			ReplaceField: `REPLY_GOVERNING_BODY`,
 		},
 		"工单标题": {
 			KeyField:     "工单标题",
-			ReplaceField: `{ORDER_TITLE}`,
+			ReplaceField: `ORDER_TITLE`,
 		},
 		"工单描述": {
 			KeyField:     "工单描述",
-			ReplaceField: `{ORDER_DESC}`,
+			ReplaceField: `ORDER_DESC`,
 		},
 		"回复内容": {
 			KeyField:     "单位回复",
-			ReplaceField: `{RESPONSE}`,
+			ReplaceField: `RESPONSE`,
 		},
 		"原始文件名": {
 			Ignore:   true,
