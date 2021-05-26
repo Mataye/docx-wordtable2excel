@@ -61,7 +61,7 @@ func main() {
 
 			_ = tmpDocx.Replace(column.ReplaceField, column.ColumnVal, -1)
 		}
-		err = tmpDocx.WriteToFile("./tmp/" + docxFileName)
+		err = tmpDocx.WriteToFile(docxFileName)
 	}
 
 }
