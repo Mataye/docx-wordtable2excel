@@ -54,6 +54,12 @@ func main() {
 }
 
 func openDocxFile(filename string) ([][]string, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	reader, readerFiles := docx2.UnpackDocx(filename)
 	if reader == nil || len(readerFiles) == 0 {
 		return nil, fmt.Errorf("empty docx reader")
